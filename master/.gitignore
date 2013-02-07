@@ -1,0 +1,2 @@
+# ignore web status auth
+.htpasswd

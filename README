@@ -1,0 +1,109 @@
+Buildbot setup
+==============
+
+Required packages
+-----------------
+
+On master machine
+
+    buildbot
+
+On slave machine
+
+    buildslave
+
+    gcc
+    cpp
+    binutils
+    make
+    libc6-dev
+    libfuse-dev
+    libaio-dev
+    libacl1-dev
+    libattr1-dev
+    pkg-config
+    sparse
+    valgrind
+    lcov
+    fuse
+    git
+    time
+
+    task-ssh-server
+    gawk
+    python
+    perl
+    gdb
+    w3m-img
+    lftp
+    acl
+    attr
+    hdparm
+    sdparm
+
+KVM guest setup
+---------------
+See <https://github.com/OGAWAHirofumi/tux3/wiki/KVM-setup> for KVM
+setup itself.
+
+1. Install debian testing
+
+2. Install required packages
+
+    Required packages are same with "Slave machine" except buildslave.
+
+3. Make ssh key to login as "root" without password
+
+    Login as root to guest, and make key for ssh
+
+        $ ssh-keygen
+        [press entry for all questions]
+        $ cp .ssh/id_rsa.pub .ssh/authorized_keys
+
+    Send .ssh/id_rsa by e.g. ftp to host machine
+
+4. For fast boot, set grub timeout to 0
+
+    In the guest,
+
+        $ sed -ie 's/\(GRUB_TIMEOUT\)=.*/\1=0/' /etc/default/grub
+        $ update-grub
+
+5. Make tarball of guest image
+
+        $ tar cJf kvm-<arch>.tar.xz kvm-<arch>.qcow2 id_rsa-<arch>
+
+6. Deploy for buildslave
+
+    Buildslave download guest image from <master-dir>/guest-images/
+
+        $ mv kvm-<arch>.tar.xz to <master-dir>/guest-images/
+
+Test setup
+----------
+tux3 test tools are in follwing repository
+
+<git://github.com/OGAWAHirofumi/tux3-tests.git>
+
+See README in the repository.
+
+Run buildbot master
+-------------------
+
+    $ buildbot create-master <master-dir>
+    $ cd <master-dir>
+    $ mv master.cfg.sample master.cfg
+    $ edit master.cfg
+    $ buildbot start
+
+Run buildbot slave
+------------------
+
+    $ buildslave create-slave <slave-dir> localhost:9989 <slave-name> <slave-pass>
+    $ cd <slave-dir>
+    $ buildslave start
+
+TODO
+----
+- Add performance test for kernel
+- When test was fail with coredump, we would want to save coredump and binary

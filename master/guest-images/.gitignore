@@ -1,0 +1,4 @@
+# ignore guest images
+id_rsa*
+*.qcow2
+*.tar.xz
