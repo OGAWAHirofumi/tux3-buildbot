@@ -41,10 +41,34 @@ wait_ssh()
     for i in $(seq 36); do
 	ssh $(ssh_opts) -o "ConnectTimeout=5" "localhost" "/bin/true"
 	if [ $? != 255 ]; then
-	    break
+	    return $?
 	fi
+
 	sleep 5
     done
+
+    return 255
+}
+
+wait_kvm_prompt()
+{
+    for i in $(seq 600); do
+	if ! pkill --signal 0 --pidfile "$PID_FILE" 2> /dev/null; then
+	    # kvm seems died
+	    return 1
+	fi
+
+	# Find prompt
+	if dd if=$MON_FIFO.out bs=1M iflag=nonblock 2> /dev/null \
+	    | grep '(qemu)' > /dev/null; then
+	    return 0
+	fi
+
+	sleep 1
+    done
+
+    # timeout
+    return 255
 }
 
 # bb-kvm.sh run <port> <sshkey> [kvm options]
@@ -89,14 +113,24 @@ cmd_run()
 	cleanup
 	exit 1
     fi
+    if ! wait_kvm_prompt; then
+	echo "Couldn't find (qemu) prompt"
+	cmd_quit
+	exit 1
+    fi
 
     # Add port forward to ssh
     echo "hostfwd_add tcp::$port-:22" > $MON_FIFO.in
+    if ! wait_kvm_prompt; then
+	echo "Couldn't set hostfwd"
+	cmd_quit
+	exit 1
+    fi
 
     # Wait ssh
-    wait_ssh
-    if [ $? != 0 ]; then
+    if ! wait_ssh; then
 	cmd_quit
+	exit 1
     fi
 }
 
@@ -116,7 +150,13 @@ cmd_dump()
 
     if pkill --signal 0 --pidfile "$PID_FILE" 2> /dev/null; then
 	rm -f $vmcore
+
 	echo "dump-guest-memory $(pwd)/$vmcore" > $MON_FIFO.in
+	if ! wait_kvm_prompt; then
+	    echo "Couldn't find (qemu) prompt"
+	    cmd_quit
+	    exit 1
+	fi
     fi
 }
 
