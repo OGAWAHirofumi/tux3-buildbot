@@ -16,6 +16,8 @@ On slave machine
     cpp
     binutils
     make
+    bc
+    dc
     libc6-dev
     libfuse-dev
     libaio-dev
