@@ -94,6 +94,11 @@ cmd_run()
 
     cleanup
 
+    SNAPSHOT_OPT="-snapshot"
+    if [ "$NO_SNAPSHOT" = 1 ]; then
+	SNAPSHOT_OPT=""
+    fi
+    
     echo "port=$port" >> $CONFIG
     echo "ssh_key=$ssh_key" >> $CONFIG
 
@@ -101,7 +106,7 @@ cmd_run()
 
     $KVM \
 	-enable-kvm \
-	-snapshot \
+	$SNAPSHOT_OPT \
 	-display none \
 	-serial "file:$SERIAL" \
 	-monitor "pipe:$MON_FIFO" \
@@ -132,6 +137,12 @@ cmd_run()
 	cmd_quit
 	exit 1
     fi
+}
+
+# variant of run command without snapshot
+cmd_mod()
+{
+    NO_SNAPSHOT=1 cmd_run "$@"
 }
 
 cmd_serial()
@@ -188,7 +199,7 @@ cmd="$1"
 shift
 
 case "$cmd" in
-    run|ssh|scp|serial|dump|quit)
+    run|mod|ssh|scp|serial|dump|quit)
 	"cmd_$cmd" "$@"
 	;;
     *)
