@@ -2,3 +2,4 @@
 id_rsa*
 *.qcow2
 *.tar.xz
+*.sum
