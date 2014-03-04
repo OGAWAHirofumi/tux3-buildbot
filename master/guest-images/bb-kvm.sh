@@ -71,6 +71,32 @@ wait_kvm_prompt()
     return 255
 }
 
+cmd_serial()
+{
+    if [ -r "$SERIAL" ]; then
+	cat "$SERIAL"
+    fi
+}
+
+cmd_dump()
+{
+    vmcore="$1"
+    if [ "$vmcore" = "" ]; then
+	vmcore="vmcore"
+    fi
+
+    if pkill --signal 0 --pidfile "$PID_FILE" 2> /dev/null; then
+	rm -f $vmcore
+
+	echo "dump-guest-memory $(pwd)/$vmcore" > $MON_FIFO.in
+	if ! wait_kvm_prompt; then
+	    echo "Couldn't find (qemu) prompt"
+	    cmd_quit
+	    exit 1
+	fi
+    fi
+}
+
 # bb-kvm.sh run <port> <sshkey> [kvm options]
 cmd_run()
 {
@@ -79,8 +105,14 @@ cmd_run()
     shift 2
 
     if [ -r "$PID_FILE" ]; then
-	echo "Already running: '$PID_FILE'"
-	exit 1
+	if pkill --signal 0 --pidfile "$PID_FILE" 2> /dev/null; then
+	    echo "Already running: '$PID_FILE'"
+	    exit 1
+	fi
+
+	echo "---------------------- [Start OLD serial] ----------------------"
+	cmd_serial
+	echo "---------------------- [End OLD serial] ------------------------"
     fi
 
     if echo $port | grep -v '[0-9]' > /dev/null; then
@@ -143,32 +175,6 @@ cmd_run()
 cmd_mod()
 {
     NO_SNAPSHOT=1 cmd_run "$@"
-}
-
-cmd_serial()
-{
-    if pkill --signal 0 --pidfile "$PID_FILE" 2> /dev/null; then
-	cat $SERIAL
-    fi
-}
-
-cmd_dump()
-{
-    vmcore="$1"
-    if [ "$vmcore" = "" ]; then
-	vmcore="vmcore"
-    fi
-
-    if pkill --signal 0 --pidfile "$PID_FILE" 2> /dev/null; then
-	rm -f $vmcore
-
-	echo "dump-guest-memory $(pwd)/$vmcore" > $MON_FIFO.in
-	if ! wait_kvm_prompt; then
-	    echo "Couldn't find (qemu) prompt"
-	    cmd_quit
-	    exit 1
-	fi
-    fi
 }
 
 cmd_quit()
