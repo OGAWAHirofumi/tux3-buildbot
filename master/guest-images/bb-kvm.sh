@@ -13,6 +13,13 @@ cleanup()
     rm -f $PID_FILE $MON_FIFO.* $SERIAL $CONFIG
 }
 
+send_mon_cmd()
+{
+    LINE="$1"
+    # Use non-blocking
+    echo "$LINE" | dd of=$MON_FIFO.in conv=notrunc oflag=nonblock 2> /dev/null
+}
+
 ssh_opts()
 {
     . "./$CONFIG"
@@ -88,7 +95,7 @@ cmd_dump()
     if pkill --signal 0 --pidfile "$PID_FILE" 2> /dev/null; then
 	rm -f $vmcore
 
-	echo "dump-guest-memory $(pwd)/$vmcore" > $MON_FIFO.in
+	send_mon_cmd "dump-guest-memory $(pwd)/$vmcore"
 	if ! wait_kvm_prompt; then
 	    echo "Couldn't find (qemu) prompt"
 	    cmd_quit
@@ -157,7 +164,7 @@ cmd_run()
     fi
 
     # Add port forward to ssh
-    echo "hostfwd_add tcp::$port-:22" > $MON_FIFO.in
+    send_mon_cmd "hostfwd_add tcp::$port-:22"
     if ! wait_kvm_prompt; then
 	echo "Couldn't set hostfwd"
 	cmd_quit
@@ -196,7 +203,7 @@ cmd_quit()
 		;;
 	esac
 
-	echo "quit" > $MON_FIFO.in
+	send_mon_cmd "quit"
     fi
     cleanup
 }
