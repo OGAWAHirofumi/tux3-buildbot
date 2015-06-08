@@ -30,6 +30,7 @@ On slave machine
     fuse
     git
     time
+    gnuplot5
 
     task-ssh-server
     gawk
