@@ -23,6 +23,7 @@ On slave machine
     libaio-dev
     libacl1-dev
     libattr1-dev
+    libssl-dev
     pkg-config
     sparse
     valgrind
