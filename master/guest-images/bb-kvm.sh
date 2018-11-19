@@ -148,6 +148,8 @@ cmd_run()
 	$SNAPSHOT_OPT \
 	-display none \
 	-serial "file:$SERIAL" \
+	-object rng-random,id=rng0,filename=/dev/random \
+	-device virtio-rng-pci,id=rng0 \
 	-monitor "pipe:$MON_FIFO" \
 	-daemonize \
 	-pidfile "$PID_FILE" \
