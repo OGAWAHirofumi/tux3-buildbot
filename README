@@ -49,7 +49,7 @@ On slave machine
 
 KVM guest setup
 ---------------
-See <https://github.com/OGAWAHirofumi/tux3/wiki/KVM-setup> for KVM
+See <https://github.com/OGAWAHirofumi/linux-tux3/wiki/KVM-setup> for KVM
 setup itself.
 
 1. Install debian testing
