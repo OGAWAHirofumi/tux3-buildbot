@@ -186,17 +186,15 @@ cmd_mod()
     NO_SNAPSHOT=1 cmd_run "$@"
 }
 
+# bb-kvm.sh quit [dump_serial <vmcore name> | serial]
 cmd_quit()
 {
     opt="$1"
-    shift
+    vmcore="$2"
 
     if pkill --signal 0 --pidfile "$PID_FILE" 2> /dev/null; then
 	case "$opt" in
 	    dump_serial)
-		vmcore="$1"
-		shift
-
 		cmd_serial
 		cmd_dump "$vmcore"
 		;;

@@ -8,9 +8,19 @@ On master machine
 
     buildbot
 
-On slave machine
+    [For now (2019/08/22), debian testing doesn't have buildbot-www package,
+     so to install buildbot from PyPI
 
-    buildslave
+         $ python3 -mvenv buildbot
+	 $ cd buildbot
+	 $ . bin/active
+	 $ pip install --upgrade pip
+	 $ pip install 'buildbot[bundle]'
+     ]
+
+On worker machine
+
+    buildbot-worker
 
     gcc
     cpp
@@ -33,7 +43,7 @@ On slave machine
     fuse
     git
     time
-    gnuplot5
+    gnuplot
 
     task-ssh-server
     gawk
@@ -56,7 +66,7 @@ setup itself.
 
 2. Install required packages
 
-    Required packages are same with "Slave machine" except buildslave.
+    Required packages are same with "Worker machine" except buildbot-worker.
 
 3. Make ssh key to login as "root" without password
 
@@ -79,9 +89,9 @@ setup itself.
 
         $ tar cJf kvm-<arch>.tar.xz kvm-<arch>.qcow2 id_rsa-<arch>
 
-6. Deploy for buildslave
+6. Deploy for buildbot-worker
 
-    Buildslave download guest image from <master-dir>/guest-images/
+    Buildbot-worker download guest image from <master-dir>/guest-images/
 
         $ mv kvm-<arch>.tar.xz to <master-dir>/guest-images/
 
@@ -96,18 +106,18 @@ See README in the repository.
 Run buildbot master
 -------------------
 
-    $ buildbot create-master <master-dir>
+    $ buildbot create-master -r <master-dir>
     $ cd <master-dir>
     $ mv master.cfg.sample master.cfg
     $ edit master.cfg
     $ buildbot start
 
-Run buildbot slave
+Run buildbot worker
 ------------------
 
-    $ buildslave create-slave <slave-dir> localhost:9989 <slave-name> <slave-pass>
-    $ cd <slave-dir>
-    $ buildslave start
+    $ buildbot-worker create-worker -r <worker-dir> localhost:9989 <worker-name> <worker-pass>
+    $ cd <worker-dir>
+    $ buildbot-worker start
 
 TODO
 ----
