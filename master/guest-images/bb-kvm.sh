@@ -181,6 +181,11 @@ cmd_run()
 }
 
 # variant of run command without snapshot
+# bb-kvm.sh mod <port> <sshkey> [kvm options]
+#
+# For unmap,
+#	-drive id=ide0-hd0,file=kvm-i386.qcow2,if=none,discard=unmap \
+#	-device ide-hd,drive=ide0-hd0,bus=ide.0,unit=0
 cmd_mod()
 {
     NO_SNAPSHOT=1 cmd_run "$@"
