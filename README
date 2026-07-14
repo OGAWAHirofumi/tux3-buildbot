@@ -11,9 +11,8 @@ On master machine
     [For now (2019/08/22), debian testing doesn't have buildbot-www package,
      so to install buildbot from PyPI
 
-         $ python3 -mvenv buildbot
-	 $ cd buildbot
-	 $ . bin/active
+         $ python3 -m venv .venv
+	 $ . .venv/bin/active
 	 $ pip install --upgrade pip
 	 $ pip install 'buildbot[bundle]'
      ]
